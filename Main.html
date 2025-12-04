@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MetroBus</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body, html { margin: 0; font-family: 'Inter', sans-serif; background-color: #121212; color: #fff; }
+a { text-decoration: none; color: inherit; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0;
+  width: 220px; height: 100%;
+  background-color: #1f1f1f;
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 20px;
+  transition: transform 0.3s ease;
+  z-index: 100;
+}
+.brand { font-size: 24px; font-weight: 700; color: #0b74de; margin-bottom: 40px; }
+nav a { padding: 10px 0; font-weight: 600; display: block; color: #ccc; }
+nav a.active { color: #0b74de; }
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #0b74de;
+  margin-bottom: 10px;
+}
+
+/* Main content */
+.main { margin-left: 240px; padding: 40px; transition: margin-left 0.3s ease; }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Cards */
+.card { background-color: #1f1f1f; border-radius: 10px; padding: 20px; margin: 12px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
+
+/* Map */
+#map { width: 100%; height: 400px; margin-top: 20px; border-radius: 10px; }
+
+/* Input */
+input[type=text] { padding: 10px; width: 60%; border-radius: 6px; border: none; margin-right: 10px; background: #1f1f1f; color: #fff; }
+button { padding: 10px 20px; background-color: #0b74de; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+
+/* Responsive */
+@media(max-width: 800px){
+  .sidebar {
+    width: 100%; height: auto; flex-direction: row; padding: 10px; transform: translateY(-100%);
+  }
+  .sidebar.show { transform: translateY(0); flex-direction: column; position: fixed; top: 0; left: 0; }
+  nav { display: flex; flex-direction: column; gap: 10px; }
+  .main { margin-left: 0; padding: 20px; }
+  .hamburger { display: block; }
+  input[type=text] { width: 100%; margin-bottom: 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="hamburger" onclick="toggleSidebar()">☰ MetroBus</div>
+
+<div class="sidebar" id="sidebar">
+  <div class="brand">MetroBus</div>
+  <nav>
+    <a href="#home" class="tab-link active">Home</a>
+    <a href="#schedule" class="tab-link">Schedule</a>
+    <a href="#search" class="tab-link">Search</a>
+    <a href="#contact" class="tab-link">Contact</a>
+  </nav>
+</div>
+
+<div class="main">
+  <!-- Home -->
+  <section id="home" class="tab-content active">
+    <h1>Welcome to MetroBus</h1>
+    <p>Reliable, clean, and easy-to-use public transport for your city.</p>
+    <div class="card">
+      <h3>Feature 1: Real-time Bus Tracking</h3>
+      <p>See your bus in real-time and avoid waiting unnecessarily.</p>
+    </div>
+    <div class="card">
+      <h3>Feature 2: Low-Cost Passes</h3>
+      <p>Affordable monthly and weekly passes for regular commuters.</p>
+    </div>
+    <div class="card">
+      <h3>Feature 3: Clean & Safe Buses</h3>
+      <p>Daily sanitation and monitored routes for safety.</p>
+    </div>
+  </section>
+
+  <!-- Schedule -->
+  <section id="schedule" class="tab-content">
+    <h1>Bus Schedule</h1>
+    <div class="card">
+      <h3>Route 1: City Center → Airport</h3>
+      <p>Departs every 30 mins from 6:00 AM to 10:00 PM</p>
+    </div>
+    <div class="card">
+      <h3>Route 2: East Side → West Side</h3>
+      <p>Departs every 20 mins from 5:30 AM to 11:00 PM</p>
+    </div>
+    <div class="card">
+      <h3>Route 3: North District → South District</h3>
+      <p>Departs every 15 mins from 6:00 AM to 12:00 AM</p>
+    </div>
+  </section>
+
+  <!-- Search -->
+  <section id="search" class="tab-content">
+    <h1>Find Bus Stops</h1>
+    <input type="text" id="locationInput" placeholder="Enter a location" />
+    <button onclick="searchLocation()">Search</button>
+    <div id="map"></div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="tab-content">
+    <h1>Contact</h1>
+    <div class="card">
+      <h3>Email</h3>
+      <p>info@metrobus.com</p>
+    </div>
+    <div class="card">
+      <h3>Phone</h3>
+      <p>+27 21 555 0123</p>
+    </div>
+    <div class="card">
+      <h3>Address</h3>
+      <p>123 Main Street, Johannesburg, South Africa</p>
+    </div>
+  </section>
+</div>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCKliWx_CMbYpmUlJk8rZqOl4M0pv9J868"></script>
+<script>
+// Tab navigation
+const tabs = document.querySelectorAll('.tab-link');
+const contents = document.querySelectorAll('.tab-content');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', e => {
+    e.preventDefault();
+    const target = document.querySelector(tab.getAttribute('href'));
+
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+
+    contents.forEach(c => c.classList.remove('active'));
+    target.classList.add('active');
+
+    // Close sidebar on mobile after clicking
+    if(window.innerWidth <= 800) document.getElementById('sidebar').classList.remove('show');
+  });
+});
+
+// Hamburger toggle
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('show');
+}
+
+// Google Maps
+let map;
+function initMap() {
+  const defaultLocation = {lat: -26.2041, lng: 28.0473}; // Johannesburg
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: defaultLocation,
+    zoom: 13
+  });
+  new google.maps.Marker({position: defaultLocation, map});
+}
+
+// Search location simulation
+function searchLocation() {
+  const input = document.getElementById('locationInput').value.toLowerCase();
+  let lat = -26.2041;
+  let lng = 28.0473;
+
+  if(input.includes("jozi") || input.includes("johannesburg")) {
+    lat = -26.2041; lng = 28.0473;
+  } else if(input.includes("airport")) {
+    lat = -26.1337; lng = 28.2421;
+  } else if(input.includes("city center")) {
+    lat = -26.2044; lng = 28.0456;
+  } else {
+    alert("Location not found, showing default");
+  }
+
+  map.setCenter({lat, lng});
+  new google.maps.Marker({position:{lat,lng}, map});
+}
+
+window.onload = initMap;
+</script>
+</body>
+</html>
+
