@@ -39,25 +39,45 @@ nav a.active { color: #0b74de; }
 .tab-content.active { display: block; }
 
 /* Cards */
-.card { background-color: #1f1f1f; border-radius: 10px; padding: 20px; margin: 12px 0; box-shadow: 0 2px 6px rgba(0,0,0,0.5); }
+.card {
+  background-color: #1f1f1f;
+  border-radius: 10px;
+  padding: 20px;
+  margin: 12px 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
 
 /* Map */
 #map { width: 100%; height: 400px; margin-top: 20px; border-radius: 10px; }
 
 /* Input */
-input[type=text] { padding: 10px; width: 60%; border-radius: 6px; border: none; margin-right: 10px; background: #1f1f1f; color: #fff; }
-button { padding: 10px 20px; background-color: #0b74de; color: #fff; border: none; border-radius: 6px; cursor: pointer; }
+input, select {
+  padding: 10px;
+  width: 100%;
+  border-radius: 6px;
+  border: none;
+  background: #1f1f1f;
+  color: #fff;
+  margin-bottom: 10px;
+}
+button {
+  padding: 10px 20px;
+  background-color: #0b74de;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
 /* Responsive */
 @media(max-width: 800px){
   .sidebar {
-    width: 100%; height: auto; flex-direction: row; padding: 10px; transform: translateY(-100%);
+    width: 100%; height: auto;
+    transform: translateY(-100%);
   }
-  .sidebar.show { transform: translateY(0); flex-direction: column; position: fixed; top: 0; left: 0; }
-  nav { display: flex; flex-direction: column; gap: 10px; }
+  .sidebar.show { transform: translateY(0); position: fixed; }
   .main { margin-left: 0; padding: 20px; }
   .hamburger { display: block; }
-  input[type=text] { width: 100%; margin-bottom: 10px; }
 }
 </style>
 </head>
@@ -76,39 +96,41 @@ button { padding: 10px 20px; background-color: #0b74de; color: #fff; border: non
 </div>
 
 <div class="main">
+
   <!-- Home -->
   <section id="home" class="tab-content active">
     <h1>Welcome to MetroBus</h1>
     <p>Reliable, clean, and easy-to-use public transport for your city.</p>
-    <div class="card">
-      <h3>Feature 1: Real-time Bus Tracking</h3>
-      <p>See your bus in real-time and avoid waiting unnecessarily.</p>
-    </div>
-    <div class="card">
-      <h3>Feature 2: Low-Cost Passes</h3>
-      <p>Affordable monthly and weekly passes for regular commuters.</p>
-    </div>
-    <div class="card">
-      <h3>Feature 3: Clean & Safe Buses</h3>
-      <p>Daily sanitation and monitored routes for safety.</p>
-    </div>
   </section>
 
   <!-- Schedule -->
   <section id="schedule" class="tab-content">
     <h1>Bus Schedule</h1>
+
     <div class="card">
       <h3>Route 1: City Center → Airport</h3>
       <p>Departs every 30 mins from 6:00 AM to 10:00 PM</p>
     </div>
+
     <div class="card">
       <h3>Route 2: East Side → West Side</h3>
       <p>Departs every 20 mins from 5:30 AM to 11:00 PM</p>
     </div>
-    <div class="card">
+
+    <div class="card" id="route3">
       <h3>Route 3: North District → South District</h3>
       <p>Departs every 15 mins from 6:00 AM to 12:00 AM</p>
     </div>
+
+    <!-- NEW USER INPUT SECTION -->
+    <div class="card">
+      <h3>Create Your Route</h3>
+      <input type="text" id="from" placeholder="From (e.g. Sandton)">
+      <input type="text" id="to" placeholder="To (e.g. Rosebank)">
+      <input type="time" id="time">
+      <button onclick="addRoute()">Add Route</button>
+    </div>
+
   </section>
 
   <!-- Search -->
@@ -122,52 +144,63 @@ button { padding: 10px 20px; background-color: #0b74de; color: #fff; border: non
   <!-- Contact -->
   <section id="contact" class="tab-content">
     <h1>Contact</h1>
-    <div class="card">
-      <h3>Email</h3>
-      <p>info@metrobus.com</p>
-    </div>
-    <div class="card">
-      <h3>Phone</h3>
-      <p>+27 21 555 0123</p>
-    </div>
-    <div class="card">
-      <h3>Address</h3>
-      <p>123 Main Street, Johannesburg, South Africa</p>
-    </div>
+    <div class="card">Email: info@metrobus.com</div>
+    <div class="card">Phone: +27 21 555 0123</div>
   </section>
+
 </div>
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCKliWx_CMbYpmUlJk8rZqOl4M0pv9J868"></script>
 <script>
-// Tab navigation
+// Tabs
 const tabs = document.querySelectorAll('.tab-link');
 const contents = document.querySelectorAll('.tab-content');
 
 tabs.forEach(tab => {
   tab.addEventListener('click', e => {
     e.preventDefault();
-    const target = document.querySelector(tab.getAttribute('href'));
-
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-
     contents.forEach(c => c.classList.remove('active'));
-    target.classList.add('active');
-
-    // Close sidebar on mobile after clicking
-    if(window.innerWidth <= 800) document.getElementById('sidebar').classList.remove('show');
+    document.querySelector(tab.getAttribute('href')).classList.add('active');
+    if(window.innerWidth <= 800) sidebar.classList.remove('show');
   });
 });
 
-// Hamburger toggle
 function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('show');
+  sidebar.classList.toggle('show');
+}
+
+// ADD ROUTE FUNCTION (Route 4)
+function addRoute() {
+  const from = document.getElementById('from').value;
+  const to = document.getElementById('to').value;
+  const time = document.getElementById('time').value;
+
+  if(!from || !to || !time) {
+    alert("Please fill in all fields");
+    return;
+  }
+
+  const routeCard = document.createElement("div");
+  routeCard.className = "card";
+  routeCard.innerHTML = `
+    <h3>Route 4: ${from} → ${to}</h3>
+    <p>Departs at ${time}</p>
+  `;
+
+  const route3 = document.getElementById("route3");
+  route3.insertAdjacentElement("afterend", routeCard);
+
+  document.getElementById('from').value = "";
+  document.getElementById('to').value = "";
+  document.getElementById('time').value = "";
 }
 
 // Google Maps
 let map;
 function initMap() {
-  const defaultLocation = {lat: -26.2041, lng: 28.0473}; // Johannesburg
+  const defaultLocation = {lat: -26.2041, lng: 28.0473};
   map = new google.maps.Map(document.getElementById('map'), {
     center: defaultLocation,
     zoom: 13
@@ -175,28 +208,13 @@ function initMap() {
   new google.maps.Marker({position: defaultLocation, map});
 }
 
-// Search location simulation
 function searchLocation() {
-  const input = document.getElementById('locationInput').value.toLowerCase();
-  let lat = -26.2041;
-  let lng = 28.0473;
-
-  if(input.includes("jozi") || input.includes("johannesburg")) {
-    lat = -26.2041; lng = 28.0473;
-  } else if(input.includes("airport")) {
-    lat = -26.1337; lng = 28.2421;
-  } else if(input.includes("city center")) {
-    lat = -26.2044; lng = 28.0456;
-  } else {
-    alert("Location not found, showing default");
-  }
-
-  map.setCenter({lat, lng});
-  new google.maps.Marker({position:{lat,lng}, map});
+  map.setCenter({lat: -26.2041, lng: 28.0473});
 }
 
 window.onload = initMap;
 </script>
 </body>
 </html>
+
 
